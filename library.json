@@ -1,18 +1,99 @@
 {
-  "name": "papilio_rgb_led",
+  "name": "papilio_wishbone_rgb_led",
   "version": "0.1.0",
-  "keywords": ["rgb", "ws2812", "led", "papilio"],
-  "description": "RGB LED high-level API for Papilio FPGA accessed via papilio_wishbone_spi_master.",
+  "keywords": ["rgb", "ws2812", "led", "papilio", "wishbone"],
+  "description": "RGB LED controller library for Papilio FPGA with Wishbone interface and WS2812B support.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/GadgetFactory/papilio_rgb_led.git"
+    "url": "https://github.com/Papilio-Labs/papilio_wishbone_rgb_led.git"
   },
   "authors": [
-    { "name": "GadgetFactory" }
+    { "name": "Papilio Labs", "maintainer": true }
   ],
   "license": "MIT",
   "frameworks": ["arduino"],
   "platforms": ["espressif32"],
-  
-  "export": ["src/*.h", "src/*.cpp", "gateware/*"]
+  "dependencies": [
+    {
+      "name": "papilio_os",
+      "version": "*",
+      "optional": true
+    }
+  ],
+  "export": {
+    "include": [
+      "src/*.h",
+      "src/*.cpp",
+      "gateware/*.v",
+      "gateware/constraints/*.cst",
+      "README.md",
+      "AI_SKILL.md"
+    ]
+  },
+  "papilio": {
+    "version": "1.0",
+    "gateware": {
+      "modules": [
+        {
+          "name": "wb_simple_rgb_led",
+          "file": "gateware/wb_simple_rgb_led.v",
+          "description": "WS2812B RGB LED controller with Wishbone interface",
+          "parameters": [],
+          "ports": {
+            "clk": "Clock input",
+            "rst": "Reset input",
+            "wb_adr_i": "Wishbone address input (8-bit)",
+            "wb_dat_i": "Wishbone data input (8-bit)",
+            "wb_dat_o": "Wishbone data output (8-bit)",
+            "wb_we_i": "Wishbone write enable",
+            "wb_cyc_i": "Wishbone cycle",
+            "wb_stb_i": "Wishbone strobe",
+            "wb_ack_o": "Wishbone acknowledge",
+            "led_out": "WS2812B LED data output"
+          },
+          "template": "    wb_simple_rgb_led rgb_led_inst (\n        .clk(clk),\n        .rst(rst),\n        .wb_adr_i(wb_adr[7:0]),\n        .wb_dat_i(wb_dat_w[7:0]),\n        .wb_dat_o(${INSTANCE}_wb_dat),\n        .wb_we_i(wb_we),\n        .wb_cyc_i(wb_cyc),\n        .wb_stb_i(${INSTANCE}_wb_stb),\n        .wb_ack_o(${INSTANCE}_wb_ack),\n        .led_out(led_out)\n    );"
+        }
+      ]
+    },
+    "wishbone": {
+      "type": "slave",
+      "address_range": "auto",
+      "address_size": 256,
+      "data_width": 8,
+      "registers": [
+        {
+          "offset": 0,
+          "name": "LED_GREEN",
+          "description": "Green component (0-255)"
+        },
+        {
+          "offset": 1,
+          "name": "LED_RED",
+          "description": "Red component (0-255)"
+        },
+        {
+          "offset": 2,
+          "name": "LED_BLUE",
+          "description": "Blue component (0-255)"
+        },
+        {
+          "offset": 3,
+          "name": "LED_CTRL",
+          "description": "Control/status register (bit 0: busy)"
+        }
+      ]
+    },
+    "esp32": {
+      "class_name": "PapilioRgbLed",
+      "headers": ["RGBLed.h"],
+      "constructor_args": "${BASE_ADDR}",
+      "init_code": "    if (!${INSTANCE}.begin()) {\n        Serial.println(\"Failed to initialize RGB LED\");\n    }",
+      "cli": {
+        "enabled": true,
+        "os_header": "PapilioRgbLedOS.h",
+        "os_class": "PapilioRgbLedOS",
+        "constructor_code": "    static PapilioRgbLedOS ${INSTANCE}_os(&${INSTANCE});"
+      }
+    }
+  }
 }

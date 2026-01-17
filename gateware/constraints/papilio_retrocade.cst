@@ -1,0 +1,7 @@
+# Papilio RetroCade Constraint File
+# Module: papilio_wishbone_rgb_led
+# Board: Papilio RetroCade (Gowin GW5A-25)
+
+# WS2812B RGB LED Output
+IO_LOC "led_out" 10;
+IO_PORT "led_out" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;

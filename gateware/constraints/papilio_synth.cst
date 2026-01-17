@@ -1,0 +1,8 @@
+# Papilio Synth Constraint File
+# Module: papilio_wishbone_rgb_led
+# Board: Papilio Synth (Gowin GW5A-25)
+
+# WS2812B RGB LED Output
+# TODO: Assign correct pin for Papilio Synth board
+IO_LOC "led_out" XX;
+IO_PORT "led_out" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
