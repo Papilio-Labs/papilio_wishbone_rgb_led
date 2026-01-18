@@ -10,134 +10,179 @@ PapilioRgbLedOS::PapilioRgbLedOS(PapilioRgbLed* device) : _device(device) {
 }
 
 void PapilioRgbLedOS::registerCommands() {
-    PapilioOS::registerCommand("rgbled", "tutorial", handleTutorial, "Interactive RGB LED tutorial");
-    PapilioOS::registerCommand("rgbled", "help", handleHelp, "Show all rgbled commands");
-    PapilioOS::registerCommand("rgbled", "status", handleStatus, "Show RGB LED controller status");
-    PapilioOS::registerCommand("rgbled", "setcolor", handleSetColor, "Set LED color (GRB hex): rgbled setcolor 0x190000");
-    PapilioOS::registerCommand("rgbled", "setrgb", handleSetRGB, "Set LED color (R G B): rgbled setrgb 25 0 0");
+    PapilioOS.registerCommand("rgbled", "tutorial", handleTutorial, "Interactive RGB LED tutorial");
+    PapilioOS.registerCommand("rgbled", "help", handleHelp, "Show all rgbled commands");
+    PapilioOS.registerCommand("rgbled", "status", handleStatus, "Show RGB LED controller status");
+    PapilioOS.registerCommand("rgbled", "setcolor", handleSetColor, "Set LED color (GRB hex): rgbled setcolor 0x190000");
+    PapilioOS.registerCommand("rgbled", "setrgb", handleSetRGB, "Set LED color (R G B): rgbled setrgb 25 0 0");
 }
 
 void PapilioRgbLedOS::handleTutorial(int argc, char** argv) {
-    PapilioOS::println("\n=== RGB LED Tutorial ===\n");
-    PapilioOS::println("This tutorial will guide you through using the WS2812B RGB LED controller.");
-    PapilioOS::println("Type 'exit' or 'quit' at any time to leave the tutorial.\n");
+    Serial.println("\n========================================");
+    Serial.println("   RGB LED Interactive Tutorial");
+    Serial.println("========================================\n");
     
-    // Step 1: Status
-    PapilioOS::println("Step 1: Check controller status");
-    PapilioOS::println("Type: rgbled status");
-    String cmd = PapilioOS::waitForCommand();
-    if (cmd == "exit" || cmd == "quit") return;
-    if (cmd == "rgbled status") {
-        handleStatus(0, nullptr);
+    Serial.println("This tutorial will guide you through controlling WS2812B RGB LEDs.");
+    Serial.println("Type 'exit' at any prompt to quit the tutorial.\n");
+    
+    delay(1000);
+    
+    if (!_instance || !_instance->_device) {
+        Serial.println("Note: Device not initialized. Tutorial will show commands anyway.");
+        Serial.println("In your sketch, create the device in setup():\n");
+        Serial.println("  PapilioRgbLed rgbLed(0x2000);");
+        Serial.println("  rgbLed.begin();\n");
+        delay(1000);
     }
     
-    // Step 2: Set color to red
-    PapilioOS::println("\nStep 2: Set LED to red");
-    PapilioOS::println("Type: rgbled setrgb 25 0 0");
-    cmd = PapilioOS::waitForCommand();
-    if (cmd == "exit" || cmd == "quit") return;
-    if (cmd.startsWith("rgbled setrgb")) {
-        if (_instance && _instance->_device) {
-            _instance->_device->setColorRGB(25, 0, 0);
-            PapilioOS::println("LED set to red!");
+    // Step 1: Check status
+    if (!tutorialStep(1, "Check RGB LED controller status",
+                      "rgbled status")) {
+        return;
+    }
+    
+    // Step 2: Set LED to red
+    if (!tutorialStep(2, "Set LED to red (25% brightness)",
+                      "rgbled setrgb 25 0 0")) {
+        return;
+    }
+    
+    // Step 3: Set LED to green
+    if (!tutorialStep(3, "Set LED to green",
+                      "rgbled setrgb 0 25 0")) {
+        return;
+    }
+    
+    // Step 4: Set LED to blue
+    if (!tutorialStep(4, "Set LED to blue",
+                      "rgbled setrgb 0 0 25")) {
+        return;
+    }
+    
+    // Step 5: Set LED using hex color (cyan)
+    if (!tutorialStep(5, "Set LED to cyan using hex color (GRB format)",
+                      "rgbled setcolor 0x190019")) {
+        return;
+    }
+    
+    Serial.println("\n========================================");
+    Serial.println("   Tutorial Complete!");
+    Serial.println("========================================\n");
+    
+    Serial.println("You've learned how to:");
+    Serial.println("  - Check RGB LED controller status");
+    Serial.println("  - Set colors using RGB values");
+    Serial.println("  - Set colors using hex (GRB format)");
+    Serial.println("\nFor more info, run: rgbled help");
+}
+
+bool PapilioRgbLedOS::tutorialStep(int stepNum, const char* description, 
+                                    const char* command) {
+    Serial.printf("\nStep %d: %s\n", stepNum, description);
+    Serial.printf("Try the command: %s\n", command);
+    Serial.print("\nPress Enter when ready (or type 'exit' to quit): ");
+    
+    // Wait for user input
+    while (!Serial.available()) {
+        delay(10);
+    }
+    
+    String input = Serial.readStringUntil('\n');
+    input.trim();
+    Serial.println();
+    
+    if (input.equalsIgnoreCase("exit") || input.equalsIgnoreCase("quit")) {
+        Serial.println("Tutorial exited.");
+        return false;
+    }
+    
+    // Execute the command
+    Serial.printf("> %s\n", command);
+    
+    // Parse and execute
+    char cmdCopy[128];
+    strncpy(cmdCopy, command, sizeof(cmdCopy) - 1);
+    cmdCopy[sizeof(cmdCopy) - 1] = '\0';
+    
+    char* argv[10];
+    int argc = 0;
+    char* token = strtok(cmdCopy, " ");
+    while (token && argc < 10) {
+        argv[argc++] = token;
+        token = strtok(nullptr, " ");
+    }
+    
+    // Route to handler (skip module name "rgbled")
+    if (argc >= 2) {
+        if (strcmp(argv[1], "status") == 0) {
+            handleStatus(argc - 1, &argv[1]);
+        } else if (strcmp(argv[1], "setrgb") == 0) {
+            handleSetRGB(argc - 1, &argv[1]);
+        } else if (strcmp(argv[1], "setcolor") == 0) {
+            handleSetColor(argc - 1, &argv[1]);
         }
     }
     
-    // Step 3: Set color to green
-    PapilioOS::println("\nStep 3: Set LED to green");
-    PapilioOS::println("Type: rgbled setrgb 0 25 0");
-    cmd = PapilioOS::waitForCommand();
-    if (cmd == "exit" || cmd == "quit") return;
-    if (cmd.startsWith("rgbled setrgb")) {
-        if (_instance && _instance->_device) {
-            _instance->_device->setColorRGB(0, 25, 0);
-            PapilioOS::println("LED set to green!");
-        }
-    }
-    
-    // Step 4: Set color to blue
-    PapilioOS::println("\nStep 4: Set LED to blue");
-    PapilioOS::println("Type: rgbled setrgb 0 0 25");
-    cmd = PapilioOS::waitForCommand();
-    if (cmd == "exit" || cmd == "quit") return;
-    if (cmd.startsWith("rgbled setrgb")) {
-        if (_instance && _instance->_device) {
-            _instance->_device->setColorRGB(0, 0, 25);
-            PapilioOS::println("LED set to blue!");
-        }
-    }
-    
-    // Step 5: Using hex color
-    PapilioOS::println("\nStep 5: Set color using hex (cyan = green + blue)");
-    PapilioOS::println("Type: rgbled setcolor 0x190019");
-    cmd = PapilioOS::waitForCommand();
-    if (cmd == "exit" || cmd == "quit") return;
-    if (cmd.startsWith("rgbled setcolor")) {
-        if (_instance && _instance->_device) {
-            _instance->_device->setColor(0x190019);
-            PapilioOS::println("LED set to cyan!");
-        }
-    }
-    
-    PapilioOS::println("\nTutorial complete! Try 'rgbled help' for more commands.");
+    delay(1000);
+    return true;
 }
 
 void PapilioRgbLedOS::handleHelp(int argc, char** argv) {
-    PapilioOS::println("\nRGB LED Commands:");
-    PapilioOS::println("  rgbled tutorial        - Interactive tutorial");
-    PapilioOS::println("  rgbled status          - Show controller status");
-    PapilioOS::println("  rgbled setcolor <hex>  - Set color (GRB format, e.g., 0x190000 for green)");
-    PapilioOS::println("  rgbled setrgb <R> <G> <B> - Set color (R/G/B 0-255)");
-    PapilioOS::println("\nColor format: GRB (Green-Red-Blue) for WS2812B LEDs");
-    PapilioOS::println("Common colors:");
-    PapilioOS::println("  Red:     rgbled setrgb 25 0 0   or  rgbled setcolor 0x001900");
-    PapilioOS::println("  Green:   rgbled setrgb 0 25 0   or  rgbled setcolor 0x190000");
-    PapilioOS::println("  Blue:    rgbled setrgb 0 0 25   or  rgbled setcolor 0x000019");
-    PapilioOS::println("  Yellow:  rgbled setrgb 25 25 0  or  rgbled setcolor 0x191900");
-    PapilioOS::println("  Cyan:    rgbled setrgb 0 25 25  or  rgbled setcolor 0x190019");
-    PapilioOS::println("  Magenta: rgbled setrgb 25 0 25  or  rgbled setcolor 0x001919");
-    PapilioOS::println("  White:   rgbled setrgb 25 25 25 or  rgbled setcolor 0x191919");
+    Serial.println("\nRGB LED Commands:");
+    Serial.println("  rgbled tutorial        - Interactive tutorial");
+    Serial.println("  rgbled status          - Show controller status");
+    Serial.println("  rgbled setcolor <hex>  - Set color (GRB format, e.g., 0x190000 for green)");
+    Serial.println("  rgbled setrgb <R> <G> <B> - Set color (R/G/B 0-255)");
+    Serial.println("\nColor format: GRB (Green-Red-Blue) for WS2812B LEDs");
+    Serial.println("Common colors:");
+    Serial.println("  Red:     rgbled setrgb 25 0 0   or  rgbled setcolor 0x001900");
+    Serial.println("  Green:   rgbled setrgb 0 25 0   or  rgbled setcolor 0x190000");
+    Serial.println("  Blue:    rgbled setrgb 0 0 25   or  rgbled setcolor 0x000019");
+    Serial.println("  Yellow:  rgbled setrgb 25 25 0  or  rgbled setcolor 0x191900");
+    Serial.println("  Cyan:    rgbled setrgb 0 25 25  or  rgbled setcolor 0x190019");
+    Serial.println("  Magenta: rgbled setrgb 25 0 25  or  rgbled setcolor 0x001919");
+    Serial.println("  White:   rgbled setrgb 25 25 25 or  rgbled setcolor 0x191919");
 }
 
 void PapilioRgbLedOS::handleStatus(int argc, char** argv) {
     if (!_instance || !_instance->_device) {
-        PapilioOS::println("Error: RGB LED device not initialized");
+        Serial.println("Error: RGB LED device not initialized");
         return;
     }
     
-    PapilioOS::print("RGB LED Controller at address 0x");
-    PapilioOS::println(String(_instance->_device->getBaseAddress(), HEX));
-    PapilioOS::print("Busy: ");
-    PapilioOS::println(_instance->_device->isBusy() ? "Yes" : "No");
+    Serial.print("RGB LED Controller at address 0x");
+    Serial.println(String(_instance->_device->getBaseAddress(), HEX));
+    Serial.print("Busy: ");
+    Serial.println(_instance->_device->isBusy() ? "Yes" : "No");
 }
 
 void PapilioRgbLedOS::handleSetColor(int argc, char** argv) {
     if (!_instance || !_instance->_device) {
-        PapilioOS::println("Error: RGB LED device not initialized");
+        Serial.println("Error: RGB LED device not initialized");
         return;
     }
     
     if (argc < 3) {
-        PapilioOS::println("Usage: rgbled setcolor <hex_color>");
-        PapilioOS::println("Example: rgbled setcolor 0x190000 (green)");
+        Serial.println("Usage: rgbled setcolor <hex_color>");
+        Serial.println("Example: rgbled setcolor 0x190000 (green)");
         return;
     }
     
     uint32_t color = strtoul(argv[2], nullptr, 16);
     _instance->_device->setColor(color);
-    PapilioOS::print("LED color set to 0x");
-    PapilioOS::println(String(color, HEX));
+    Serial.print("LED color set to 0x");
+    Serial.println(String(color, HEX));
 }
 
 void PapilioRgbLedOS::handleSetRGB(int argc, char** argv) {
     if (!_instance || !_instance->_device) {
-        PapilioOS::println("Error: RGB LED device not initialized");
+        Serial.println("Error: RGB LED device not initialized");
         return;
     }
     
     if (argc < 5) {
-        PapilioOS::println("Usage: rgbled setrgb <red> <green> <blue>");
-        PapilioOS::println("Example: rgbled setrgb 25 0 0 (red)");
+        Serial.println("Usage: rgbled setrgb <red> <green> <blue>");
+        Serial.println("Example: rgbled setrgb 25 0 0 (red)");
         return;
     }
     
@@ -146,13 +191,13 @@ void PapilioRgbLedOS::handleSetRGB(int argc, char** argv) {
     uint8_t blue = atoi(argv[4]);
     
     _instance->_device->setColorRGB(red, green, blue);
-    PapilioOS::print("LED color set to RGB(");
-    PapilioOS::print(String(red));
-    PapilioOS::print(", ");
-    PapilioOS::print(String(green));
-    PapilioOS::print(", ");
-    PapilioOS::print(String(blue));
-    PapilioOS::println(")");
+    Serial.print("LED color set to RGB(");
+    Serial.print(String(red));
+    Serial.print(", ");
+    Serial.print(String(green));
+    Serial.print(", ");
+    Serial.print(String(blue));
+    Serial.println(")");
 }
 
 #endif // ENABLE_PAPILIO_OS

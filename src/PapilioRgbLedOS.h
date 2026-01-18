@@ -22,6 +22,9 @@ private:
     static void handleSetColor(int argc, char** argv);
     static void handleSetRGB(int argc, char** argv);
     
+    // Tutorial helper
+    static bool tutorialStep(int stepNum, const char* description, const char* command);
+    
     static PapilioRgbLedOS* _instance;
 };
 
