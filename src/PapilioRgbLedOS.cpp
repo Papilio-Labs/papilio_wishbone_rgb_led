@@ -1,4 +1,4 @@
-#include "PapilioRgbLedOS.h"
+#include "PapilioRGBLedOS.h"
 
 #ifdef ENABLE_PAPILIO_OS
 

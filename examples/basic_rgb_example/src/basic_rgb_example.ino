@@ -1,8 +1,8 @@
 // Basic example for papilio_rgb_led
-// Shows how to initialize and set LED colors using the RGBLed API
+// Shows how to initialize and set LED colors using the PapilioRGBLed API
 
 #include <SPI.h>
-#include "RGBLed.h"
+#include "PapilioRGBLed.h"
 
 // Adjust pins to your board
 #define SPI_CLK   12

@@ -8,8 +8,8 @@ For general Papilio development skills, see `papilio_dev_tools/AI_SKILL.md`.
 
 ## Library Architecture
 
-- **Firmware**: `PapilioRgbLed` class provides high-level API
-- **OS Plugin**: `PapilioRgbLedOS` adds CLI commands (when `ENABLE_PAPILIO_OS` defined)
+- **Firmware**: `PapilioRGBLed` class provides high-level API
+- **OS Plugin**: `PapilioRGBLedOS` adds CLI commands (when `ENABLE_PAPILIO_OS` defined)
 - **Gateware**: `wb_simple_rgb_led` Verilog module interfaces with WS2812B LED
 
 ## Wishbone Register Map
@@ -29,10 +29,10 @@ Base Address: Configurable (default 0x2000), auto-assigned by builder
 
 ### Initialization
 ```cpp
-#include <RGBLed.h>
+#include <PapilioRGBLed.h>
 
 // Create instance with base address
-PapilioRgbLed rgbLed(0x2000);  // Or use auto-assigned address
+PapilioRGBLed rgbLed(0x2000);  // Or use auto-assigned address
 
 void setup() {
     // Initialize (relies on WishboneSPI being initialized first)
@@ -49,21 +49,21 @@ rgbLed.setColorRGB(25, 0, 0);  // Red
 rgbLed.setColor(0x190000);  // Green (GRB format!)
 
 // Method 3: Using color constants
-rgbLed.setColor(PapilioRgbLed::COLOR_BLUE);
+rgbLed.setColor(PapilioRGBLed::COLOR_BLUE);
 ```
 
 ### Color Constants
 ```cpp
-PapilioRgbLed::COLOR_OFF      // 0x000000
-PapilioRgbLed::COLOR_RED      // 0x001900
-PapilioRgbLed::COLOR_GREEN    // 0x190000
-PapilioRgbLed::COLOR_BLUE     // 0x000019
-PapilioRgbLed::COLOR_YELLOW   // 0x191900
-PapilioRgbLed::COLOR_CYAN     // 0x190019
-PapilioRgbLed::COLOR_MAGENTA  // 0x001919
-PapilioRgbLed::COLOR_WHITE    // 0x191919
-PapilioRgbLed::COLOR_ORANGE   // 0x0C1900
-PapilioRgbLed::COLOR_PURPLE   // 0x000C0C
+PapilioRGBLed::COLOR_OFF      // 0x000000
+PapilioRGBLed::COLOR_RED      // 0x001900
+PapilioRGBLed::COLOR_GREEN    // 0x190000
+PapilioRGBLed::COLOR_BLUE     // 0x000019
+PapilioRGBLed::COLOR_YELLOW   // 0x191900
+PapilioRGBLed::COLOR_CYAN     // 0x190019
+PapilioRGBLed::COLOR_MAGENTA  // 0x001919
+PapilioRGBLed::COLOR_WHITE    // 0x191919
+PapilioRGBLed::COLOR_ORANGE   // 0x0C1900
+PapilioRGBLed::COLOR_PURPLE   // 0x000C0C
 ```
 
 ### Status Checking
@@ -190,11 +190,23 @@ void setup() {
 ## Pin Assignments
 
 ### Papilio RetroCade
-See `gateware/constraints/papilio_retrocade.cst`:
-- LED_OUT: Pin 10 (WS2812B data)
+See `gateware/constraints/rgb_led_papilio_retrocade.cst`:
+- LED_OUT: Pin P9 (WS2812B data signal)
+
+**Integration**: Copy the library's constraint file to your project:
+```bash
+cp .pio/libdeps/fpga/papilio_wishbone_rgb_led/gateware/constraints/rgb_led_papilio_retrocade.cst fpga/constraints/
+```
+
+Then add to `fpga/project.gprj`:
+```xml
+<File path="constraints/rgb_led_papilio_retrocade.cst" type="file.cst" enable="1" />
+```
+
+**Important**: Do NOT merge library constraints into your base constraint file. Keep them as separate files for better organization and to avoid pin conflicts.
 
 ### Papilio Synth
-See `gateware/constraints/papilio_synth.cst`:
+See `gateware/constraints/rgb_led_papilio_synth.cst`:
 - LED_OUT: Pin TBD
 
 ## Common Operations
@@ -224,7 +236,7 @@ for (int i = 0; i < 256; i++) {
 ### Checking transmission status
 ```cpp
 // Set color
-rgbLed.setColor(PapilioRgbLed::COLOR_GREEN);
+rgbLed.setColor(PapilioRGBLed::COLOR_GREEN);
 
 // Wait for transmission to complete
 while (rgbLed.isBusy()) {
@@ -235,14 +247,14 @@ while (rgbLed.isBusy()) {
 ## Adding Features
 
 ### New Color Presets
-Add to `RGBLed.h`:
+Add to `PapilioRGBLed.h`:
 ```cpp
 static const uint32_t COLOR_LIME = 0x646400;  // GRB format
 ```
 
-Add to `RGBLed.cpp`:
+Add to `PapilioRGBLed.cpp`:
 ```cpp
-const uint32_t PapilioRgbLed::COLOR_LIME = 0x646400;
+const uint32_t PapilioRGBLed::COLOR_LIME = 0x646400;
 ```
 
 ### Brightness Control
@@ -253,7 +265,7 @@ void setBrightness(float factor);  // 0.0-1.0
 
 Implementation:
 ```cpp
-void PapilioRgbLed::setBrightness(float factor) {
+void PapilioRGBLed::setBrightness(float factor) {
     // Scale all future colors by factor
     // Or add brightness register to gateware
 }

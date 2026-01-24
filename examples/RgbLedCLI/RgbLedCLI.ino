@@ -1,7 +1,7 @@
 /**
  * Papilio RGB LED Example with CLI
  * 
- * This example demonstrates using the PapilioRgbLed library
+ * This example demonstrates using the PapilioRGBLed library
  * with both programmatic API and CLI commands.
  * 
  * Hardware: Papilio RetroCade or compatible board with WS2812B LED
@@ -15,14 +15,14 @@
 
 #include <Arduino.h>
 #include <WishboneSPI.h>
-#include <RGBLed.h>
+#include <PapilioRGBLed.h>
 
 // Uncomment to enable CLI interface
 // #define ENABLE_PAPILIO_OS
 
 #ifdef ENABLE_PAPILIO_OS
 #include <PapilioOS.h>
-#include <PapilioRgbLedOS.h>
+#include <PapilioRGBLedOS.h>
 #endif
 
 // SPI Configuration
@@ -35,10 +35,10 @@ SPIClass* fpgaSPI;
 
 // RGB LED Controller (base address will be auto-assigned in automatic builder)
 // For manual setup, use the address from your FPGA design
-PapilioRgbLed rgbLed(0x2000);
+PapilioRGBLed rgbLed(0x2000);
 
 #ifdef ENABLE_PAPILIO_OS
-PapilioRgbLedOS rgbLedOS(&rgbLed);
+PapilioRGBLedOS rgbLedOS(&rgbLed);
 #endif
 
 void setup() {
@@ -89,31 +89,31 @@ void loop() {
         switch (colorIndex) {
             case 0:
                 Serial.println("Setting LED to RED");
-                rgbLed.setColor(PapilioRgbLed::COLOR_RED);
+                rgbLed.setColor(PapilioRGBLed::COLOR_RED);
                 break;
             case 1:
                 Serial.println("Setting LED to GREEN");
-                rgbLed.setColor(PapilioRgbLed::COLOR_GREEN);
+                rgbLed.setColor(PapilioRGBLed::COLOR_GREEN);
                 break;
             case 2:
                 Serial.println("Setting LED to BLUE");
-                rgbLed.setColor(PapilioRgbLed::COLOR_BLUE);
+                rgbLed.setColor(PapilioRGBLed::COLOR_BLUE);
                 break;
             case 3:
                 Serial.println("Setting LED to YELLOW");
-                rgbLed.setColor(PapilioRgbLed::COLOR_YELLOW);
+                rgbLed.setColor(PapilioRGBLed::COLOR_YELLOW);
                 break;
             case 4:
                 Serial.println("Setting LED to CYAN");
-                rgbLed.setColor(PapilioRgbLed::COLOR_CYAN);
+                rgbLed.setColor(PapilioRGBLed::COLOR_CYAN);
                 break;
             case 5:
                 Serial.println("Setting LED to MAGENTA");
-                rgbLed.setColor(PapilioRgbLed::COLOR_MAGENTA);
+                rgbLed.setColor(PapilioRGBLed::COLOR_MAGENTA);
                 break;
             case 6:
                 Serial.println("Setting LED to WHITE");
-                rgbLed.setColor(PapilioRgbLed::COLOR_WHITE);
+                rgbLed.setColor(PapilioRGBLed::COLOR_WHITE);
                 break;
         }
         

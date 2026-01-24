@@ -84,15 +84,15 @@
       ]
     },
     "esp32": {
-      "class_name": "PapilioRgbLed",
-      "headers": ["RGBLed.h"],
+      "class_name": "PapilioRGBLed",
+      "headers": ["PapilioRGBLed.h"],
       "constructor_args": "${BASE_ADDR}",
       "init_code": "    if (!${INSTANCE}.begin()) {\n        Serial.println(\"Failed to initialize RGB LED\");\n    }",
       "cli": {
         "enabled": true,
-        "os_header": "PapilioRgbLedOS.h",
-        "os_class": "PapilioRgbLedOS",
-        "constructor_code": "    static PapilioRgbLedOS ${INSTANCE}_os(&${INSTANCE});"
+        "os_header": "PapilioRGBLedOS.h",
+        "os_class": "PapilioRGBLedOS",
+        "constructor_code": "    static PapilioRGBLedOS ${INSTANCE}_os(&${INSTANCE});"
       }
     }
   }

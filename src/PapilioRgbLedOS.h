@@ -5,14 +5,14 @@
 #ifdef ENABLE_PAPILIO_OS
 
 #include <PapilioOS.h>
-#include "RGBLed.h"
+#include "PapilioRGBLed.h"
 
-class PapilioRgbLedOS {
+class PapilioRGBLedOS {
 public:
-    PapilioRgbLedOS(PapilioRgbLed* device);
+    PapilioRGBLedOS(PapilioRGBLed* device);
     
 private:
-    PapilioRgbLed* _device;
+    PapilioRGBLed* _device;
     void registerCommands();
     
     // Command handlers
@@ -25,7 +25,7 @@ private:
     // Tutorial helper
     static bool tutorialStep(int stepNum, const char* description, const char* command);
     
-    static PapilioRgbLedOS* _instance;
+    static PapilioRGBLedOS* _instance;
 };
 
 #endif // ENABLE_PAPILIO_OS

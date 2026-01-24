@@ -3,8 +3,8 @@
 This small Arduino/PlatformIO library provides a simple API to control the FPGA-side WS2812B RGB LED controller (exposed as Wishbone registers) used in the Papilio Arcade template.
 
 Files
-- `src/RGBLed.h` — Public header with API and color constants.
-- `src/RGBLed.cpp` — Implementation that calls the existing `wishbone_spi` helpers (`wishboneInit`, `wishboneWrite8`, `wishboneRead8`).
+- `src/PapilioRGBLed.h` — Public header with API and color constants.
+- `src/PapilioRGBLed.cpp` — Implementation that calls the existing `wishbone_spi` helpers (`wishboneInit`, `wishboneWrite8`, `wishboneRead8`).
 
 Dependencies
 - `lib/wishbone_spi` — the library providing `wishboneInit` and register read/write helpers. Ensure it is available to your build.

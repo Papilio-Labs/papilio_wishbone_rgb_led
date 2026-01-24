@@ -5,9 +5,9 @@
 #include <Arduino.h>
 #include <WishboneSPI.h>
 
-class PapilioRgbLed {
+class PapilioRGBLed {
 public:
-    PapilioRgbLed(uint16_t baseAddress = 0x2000);
+    PapilioRGBLed(uint16_t baseAddress = 0x2000);
     
     bool begin();
     
