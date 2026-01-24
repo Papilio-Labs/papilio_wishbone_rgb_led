@@ -2,14 +2,14 @@
 
 #ifdef ENABLE_PAPILIO_OS
 
-PapilioRgbLedOS* PapilioRgbLedOS::_instance = nullptr;
+PapilioRGBLedOS* PapilioRGBLedOS::_instance = nullptr;
 
-PapilioRgbLedOS::PapilioRgbLedOS(PapilioRgbLed* device) : _device(device) {
+PapilioRGBLedOS::PapilioRGBLedOS(PapilioRGBLed* device) : _device(device) {
     _instance = this;
     registerCommands();
 }
 
-void PapilioRgbLedOS::registerCommands() {
+void PapilioRGBLedOS::registerCommands() {
     PapilioOS.registerCommand("rgbled", "tutorial", handleTutorial, "Interactive RGB LED tutorial");
     PapilioOS.registerCommand("rgbled", "help", handleHelp, "Show all rgbled commands");
     PapilioOS.registerCommand("rgbled", "status", handleStatus, "Show RGB LED controller status");
@@ -17,7 +17,7 @@ void PapilioRgbLedOS::registerCommands() {
     PapilioOS.registerCommand("rgbled", "setrgb", handleSetRGB, "Set LED color (R G B): rgbled setrgb 25 0 0");
 }
 
-void PapilioRgbLedOS::handleTutorial(int argc, char** argv) {
+void PapilioRGBLedOS::handleTutorial(int argc, char** argv) {
     Serial.println("\n========================================");
     Serial.println("   RGB LED Interactive Tutorial");
     Serial.println("========================================\n");
@@ -76,7 +76,7 @@ void PapilioRgbLedOS::handleTutorial(int argc, char** argv) {
     Serial.println("\nFor more info, run: rgbled help");
 }
 
-bool PapilioRgbLedOS::tutorialStep(int stepNum, const char* description, 
+bool PapilioRGBLedOS::tutorialStep(int stepNum, const char* description, 
                                     const char* command) {
     Serial.printf("\nStep %d: %s\n", stepNum, description);
     Serial.printf("Try the command: %s\n", command);
@@ -127,7 +127,7 @@ bool PapilioRgbLedOS::tutorialStep(int stepNum, const char* description,
     return true;
 }
 
-void PapilioRgbLedOS::handleHelp(int argc, char** argv) {
+void PapilioRGBLedOS::handleHelp(int argc, char** argv) {
     Serial.println("\nRGB LED Commands:");
     Serial.println("  rgbled tutorial        - Interactive tutorial");
     Serial.println("  rgbled status          - Show controller status");
@@ -144,7 +144,7 @@ void PapilioRgbLedOS::handleHelp(int argc, char** argv) {
     Serial.println("  White:   rgbled setrgb 25 25 25 or  rgbled setcolor 0x191919");
 }
 
-void PapilioRgbLedOS::handleStatus(int argc, char** argv) {
+void PapilioRGBLedOS::handleStatus(int argc, char** argv) {
     if (!_instance || !_instance->_device) {
         Serial.println("Error: RGB LED device not initialized");
         return;
@@ -156,7 +156,7 @@ void PapilioRgbLedOS::handleStatus(int argc, char** argv) {
     Serial.println(_instance->_device->isBusy() ? "Yes" : "No");
 }
 
-void PapilioRgbLedOS::handleSetColor(int argc, char** argv) {
+void PapilioRGBLedOS::handleSetColor(int argc, char** argv) {
     if (!_instance || !_instance->_device) {
         Serial.println("Error: RGB LED device not initialized");
         return;
@@ -174,7 +174,7 @@ void PapilioRgbLedOS::handleSetColor(int argc, char** argv) {
     Serial.println(String(color, HEX));
 }
 
-void PapilioRgbLedOS::handleSetRGB(int argc, char** argv) {
+void PapilioRGBLedOS::handleSetRGB(int argc, char** argv) {
     if (!_instance || !_instance->_device) {
         Serial.println("Error: RGB LED device not initialized");
         return;
